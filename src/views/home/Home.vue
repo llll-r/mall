@@ -122,7 +122,8 @@ export default {
 .tab-control{
   background-color: #fff;
   position: sticky;
-  top: 44px;
+  top: 43px;
+  z-index: 9;
 }
 
 </style>
