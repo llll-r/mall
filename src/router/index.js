@@ -5,7 +5,10 @@ const Profile = () => import("../views/profile/Profile.vue")
 const Home = () => import("../views/home/Home.vue")
 const Cart = ()=>import( "../views/cart/Cart.vue")
 Vue.use(VueRouter)
-
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+return originalPush.call(this, location).catch(err => err)
+}
   const routes = [
   {
     path: '',

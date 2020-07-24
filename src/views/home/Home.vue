@@ -5,54 +5,13 @@
  <recommend-view :recommend="recommend"></recommend-view>
  <feature-view></feature-view>
    <tab-control :title="['流行','新款','精选']" class="tab-control"></tab-control>
+   <goods-list :goods="goods"></goods-list>
   <ul>
    <li></li>
    <li></li>
    <li></li>
    <li></li>
    <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   <li></li>
-   
    <li></li>
  </ul>
  
@@ -61,10 +20,11 @@
 <script>
 // @ is an alias to /src
 // import HelloWorld from '@/components/HelloWorld.vue'
-import {getHomeMultidata} from "../../network/home"
+import {getHomeMultidata, getHomeGoods} from "../../network/home"
 
 import NavBar from "../../components/common/navbar/NavBar"
 import TabControl from "../../components/content/tabControl/tabControl"
+import GoodsList from "../../components/content/goods/GoodsList"
 
 import HomeSwiper from "./childComps/HomeSwiper"
 import RecommendView from "./childComps/RecommendView"
@@ -78,6 +38,11 @@ export default {
       banner:[],
       keywords:[],
       recommend:[],
+      goods:{
+        "pop": {page:0, list:[]},
+        "news":{page:0, list:[]},
+        "sell":{page:0, list:[]}
+      }
     }
   },
   components:{
@@ -85,10 +50,18 @@ export default {
     HomeSwiper,
     RecommendView,
     FeatureView,
-    TabControl
+    TabControl,
+    GoodsList
   },
   created(){
     // let _this = this
+    this.getHomeMultidata()
+    this.getHomeGoods("pop")
+    this.getHomeGoods("new")
+    this.getHomeGoods("sell")
+  },
+  methods:{
+  getHomeMultidata(){
     getHomeMultidata().then(res=>{
       console.log(res)
       this.banner = res.data.banner.list;
@@ -96,9 +69,15 @@ export default {
       this.keywords = res.data.keywords.list;
       this.recommend = res.data.recommend.list;
       // this.result = res
-    })
+    });
+},
+  getHomeGoods(type){
+    const page = this.goods[type].page + 1;
+    getHomeGoods(type, page).then(res=>{
+        this.goods[type].push(...res.data.list[type])
+      })
+}
   }
- 
 }
 </script>
 <style  scoped>
