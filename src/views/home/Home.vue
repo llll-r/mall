@@ -3,27 +3,36 @@
     <nav-bar class="home-nav">
       <div slot="center" class="center">购物街</div>
     </nav-bar>
-    <scroll class="content" ref="scroll" :probe-type="3"
-     @scroll="scroll" :pull-up-load="true" @pullingUp="loadMore">
+    <tab-control
+      :title="['流行','新款','精选']"
+      class="tabcontrol1"
+      @tabClick="tabClick"
+      ref="tabControl1"
+      v-show="tabControlFix"
+    ></tab-control>
+    <scroll
+      class="content"
+      ref="scroll"
+      :probe-type="3"
+      @scroll="scroll"
+      :pull-up-load="true"
+      @pullingUp="loadMore"
+    >
+      <!-- 轮播图 -->
       <div class="swipe">
-        <home-swiper :banner="banner"></home-swiper>
+        <home-swiper :banner="banner" @swiperImgLoad="swiperImgLoad"></home-swiper>
       </div>
+      <!-- 推荐部分 -->
       <recommend-view :recommend="recommend"></recommend-view>
+      <!-- 流行趋势，一张大图片 -->
       <feature-view></feature-view>
-      <tab-control :title="['流行','新款','精选']" class="tab-control" @tabClick="tabClick"></tab-control>
+      <!-- 按钮控制跳转 -->
+      <tab-control :title="['流行','新款','精选']" @tabClick="tabClick" ref="tabControl2"></tab-control>
       <goods-list :goods="showGoods" @click="gooss-list-click"></goods-list>
     </scroll>
     <div class="back-top">
       <back-top @click.native="backClick" v-show="isShow"></back-top>
     </div>
-    <ul>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-      <li></li>
-    </ul>
   </div>
 </template>
 <script>
@@ -40,6 +49,7 @@ import BackTop from "../../components/content/backTop/BackTop";
 import HomeSwiper from "./childComps/HomeSwiper";
 import RecommendView from "./childComps/RecommendView";
 import FeatureView from "./childComps/FeatureView";
+// import func from '../../../vue-temp/vue-editor-bridge';
 export default {
   name: "Home",
   data() {
@@ -56,6 +66,9 @@ export default {
       },
       currentType: "pop",
       isShow: false,
+      tabOffsetTop: 0,
+      tabControlFix: false,
+      saveY: 0,
     };
   },
   components: {
@@ -75,12 +88,31 @@ export default {
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
   },
+  mounted() {
+    const refresh = this.debounce(this.$refs.scroll.refresh);
+    this.$bus.$on("itemImageLoad", () => {
+      refresh();
+    });
+  },
   computed: {
     showGoods() {
       return this.goods[this.currentType].list;
     },
   },
   methods: {
+    swiperImgLoad() {
+      // console.log("---");
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
+    },
+    debounce(func, delay) {
+      let timer = null;
+      return function (...args) {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          func.apply(this, args);
+        }, delay);
+      };
+    },
     tabClick(index) {
       // console.log(index);
       switch (index) {
@@ -94,6 +126,8 @@ export default {
           this.currentType = "sell";
           break;
       }
+      this.$refs.tabControl1.currentIndex = index;
+      this.$refs.tabControl2.currentIndex = index;
     },
 
     backClick() {
@@ -101,15 +135,15 @@ export default {
       this.$refs.scroll.scrollTo(0, 0, 500);
     },
     scroll(position) {
-      // console.log(position);
-      this.isShow = Math.abs(position.y) > 2000;
+      this.isShow = Math.abs(position.y) > 1000;
+      this.tabControlFix = Math.abs(position.y) > this.tabOffsetTop;
+      //  console.log(position.y);
     },
-    loadMore(){
-      console.log("加载更多");
-      this.getHomeGoods(this.currentType)
-      this.$refs.scroll.finishPullUp() //上拉已加载
+    loadMore() {
+      this.getHomeGoods(this.currentType);
+
+      console.log("加载更多"); //上拉已加载
       // this.$refs.scroll.refresh()
-      
     },
     //网络请求相关
     getHomeMultidata() {
@@ -127,9 +161,19 @@ export default {
       getHomeGoods(type, page).then((res) => {
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page += 1;
+        this.$refs.scroll.finishPullUp();
       });
-      
     },
+  },
+  destroyed() {
+    // console.log("desrtory");
+  },
+  deactivated() {
+    this.saveY = this.$refs.scroll.scrollY();
+  },
+  activated() {
+    this.$refs.scroll.scrollTo(0, this.saveY, 0);
+    this.$refs.scroll.refresh();
   },
 };
 </script>
@@ -143,21 +187,45 @@ export default {
   right: 0;
   left: 0;
   z-index: 9;
-  /* margin-bottom: 55px; */
+  /* margin-bottom: 55px; 
+  position: fixed;
+  z-index: 9;*/
+}
+.wrapper {
+  height: 100vh;
 }
 .center {
   color: white;
 }
 .swipe {
   padding-top: 44px;
+  /* position: absolute; */
 }
-.tab-control {
+/* .tab-control {
   background-color: #fff;
 
   z-index: 9;
-}
+} */
 .content {
   height: calc(100% - 93px);
+  /* position: absolute; */
   /* overflow: hidden; */
+  /* top: 44px; */
 }
+.tabcontrol1 {
+  /* position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 9;
+  top:44px */
+  background-color: #fff;
+  position: relative;
+  left: 0;
+  top: 44px;
+  z-index: 9;
+}
+/* .fix{
+  position: relative;
+  margin-top: 44px;
+} */
 </style>

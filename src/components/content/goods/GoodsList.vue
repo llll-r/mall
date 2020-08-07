@@ -17,6 +17,11 @@ export default {
            }
        }
    },
+   computed:{
+    //  showImage(){
+    //    return this.
+    //  }
+   },
    components:{
      GoodsListItem
    }
@@ -28,6 +33,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-evenly;
+  /* overflow: hidden; */
 }
 /* .goods-list-item{
   width: 50%;

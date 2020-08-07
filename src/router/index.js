@@ -3,7 +3,8 @@ import VueRouter from 'vue-router'
 const Category = () => import("../views/category/Category.vue")
 const Profile = () => import("../views/profile/Profile.vue")
 const Home = () => import("../views/home/Home.vue")
-const Cart = ()=>import( "../views/cart/Cart.vue")
+const Cart = () => import("../views/cart/Cart.vue")
+const Detail = ()=>import( "../views/detail/Detail.vue")
 Vue.use(VueRouter)
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location) {
@@ -29,6 +30,10 @@ return originalPush.call(this, location).catch(err => err)
     {
       path: '/category',
       component: Category
+    },
+    {
+      path: '/detail/:iid',
+      component: Detail
     }
 ]
 
