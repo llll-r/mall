@@ -18,7 +18,7 @@
       <div class="right">
         <table>
           <tbody>
-            <tr v-for="item in shop.score" :key="item.score" class="score-item">
+            <tr v-for="(item,index) in shop.score" :key="index" class="score-item">
               <td>{{item.name}}</td>
               <td :class="{colorword:item.isBetter}">{{item.score}}</td>
               <td :class="{color:item.isBetter}">高</td>

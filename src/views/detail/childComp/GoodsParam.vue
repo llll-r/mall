@@ -2,14 +2,14 @@
    <div id="goods-params">
        <table class="table-sizes">
       <tbody class="params-sizes">
-         <tr v-for="item in goodsParam.sizes[0]" :key="item.key">
-            <td v-for="items in item" :key="items">{{items}}</td>
+         <tr v-for="(item,index) in goodsParam.sizes" :key="index">
+            <td v-for="(items,index) in item" :key="index">{{items}}</td>
          </tr>
       </tbody> 
    </table>
    <table class="table-info">
       <tbody class="params-info">
-         <tr v-for="item in goodsParam.infos" :key="item.key">
+         <tr v-for="(item,index) in goodsParam.infos" :key="index">
             <td>{{item.key}}</td>
             <td class="info-td">{{item.value}}</td>
          </tr>
