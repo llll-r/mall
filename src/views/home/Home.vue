@@ -39,7 +39,7 @@
 // @ is an alias to /src
 // import HelloWorld from '@/components/HelloWorld.vue'
 import { getHomeMultidata, getHomeGoods } from "../../network/home";
-
+import {debounce}from "../../common/utils"
 import NavBar from "../../components/common/navbar/NavBar";
 import TabControl from "../../components/content/tabControl/tabControl";
 import GoodsList from "../../components/content/goods/GoodsList";
@@ -69,6 +69,7 @@ export default {
       tabOffsetTop: 0,
       tabControlFix: false,
       saveY: 0,
+      homeItemListener:null,
     };
   },
   components: {
@@ -89,10 +90,11 @@ export default {
     this.getHomeGoods("sell");
   },
   mounted() {
-    const refresh = this.debounce(this.$refs.scroll.refresh);
-    this.$bus.$on("itemImageLoad", () => {
-      refresh();
-    });
+    const refresh = debounce(this.$refs.scroll.refresh);
+    this.homeItemListener = ()=>{
+           refresh();
+    }
+    this.$bus.$on("itemImageLoad", this.homeItemListener);
   },
   computed: {
     showGoods() {
@@ -104,15 +106,7 @@ export default {
       // console.log("---");
       this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
     },
-    debounce(func, delay) {
-      let timer = null;
-      return function (...args) {
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(() => {
-          func.apply(this, args);
-        }, delay);
-      };
-    },
+   
     tabClick(index) {
       // console.log(index);
       switch (index) {
@@ -174,6 +168,7 @@ export default {
   activated() {
     this.$refs.scroll.scrollTo(0, this.saveY, 0);
     this.$refs.scroll.refresh();
+    this.$bus.$off('itemImageLoad', this.homeItemListener)
   },
 };
 </script>
