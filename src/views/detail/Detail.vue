@@ -2,6 +2,11 @@
   <div id="detail">
     <nav-bar class="detail-nav" @titleClick="titleClick" ref="navbar"></nav-bar>
     <scroll class="content" ref="scroll" @scroll="contentScroll" :probe-type="3">
+      <!-- <div>
+     <ul>
+       <li v-for="item in $store.state.cartList" :key="item.iid">{{item}}</li>
+     </ul>
+      </div> -->
       <detail-swiper :topImages="topImages"></detail-swiper>
       <base-detail :goodsInfo="goodsInfo"></base-detail>
       <div class="shop-info">
@@ -15,7 +20,7 @@
    <div class="back-top">
       <back-top @click.native="backClick" v-show="isShow"></back-top>
     </div>
-    <detail-bottom-bar></detail-bottom-bar>
+    <detail-bottom-bar @addCart="addCart"></detail-bottom-bar>
   </div>
 </template>
 <script>
@@ -101,6 +106,18 @@ export default {
     BackTop
   },
   methods: {
+    addCart(){
+      // console.log("add");
+      const product = {};
+      product.image = this.topImages[0];
+      product.desc = this.goodsInfo.desc;
+      product.title = this.goodsInfo.title;
+      product.price = this.goodsInfo.realPrice;
+      product.iid = this.iid;
+      this.$store.dispatch("addCart", product).then((res)=>{
+              console.log(res);
+      })
+    },    
     backClick() {
       // console.log("dd");
       this.$refs.scroll.scrollTo(0, 0, 500);
@@ -135,7 +152,7 @@ export default {
       // }
 
       //方法二
-      if((this.currentIndex!=i&&positionY>this.themeTopYs[i]&&positionY<this.themeTopYs[i+1]))
+      if((this.currentIndex!=i&&positionY>=this.themeTopYs[i]&&positionY<this.themeTopYs[i+1]))
       {
         this.currentIndex = i;
         console.log(this.currentIndex);
@@ -176,7 +193,7 @@ export default {
   height: 100vh;
 }
 .detail-nav {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   z-index: 9;
